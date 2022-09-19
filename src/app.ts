@@ -1,13 +1,19 @@
 import express from "express";
+import "express-async-errors";
+import cors from "cors";
+import handleError from "./middlewares/handleError.middleware";
+import { appRoutes } from "./routes";
+import { PrismaClient } from "@prisma/client";
 
+export const prisma = new PrismaClient();
 const app = express();
+
+app.use(cors());
 
 app.use(express.json());
 
-const PORT: number = 3000;
+appRoutes(app);
 
-const MSG_RETURN: string = `Server running on port: ${PORT}`;
+app.use(handleError);
 
-app.listen(PORT, () => {
-  console.log(MSG_RETURN);
-});
+export default app;

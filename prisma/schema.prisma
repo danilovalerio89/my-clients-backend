@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @unique @default(uuid())
+  name      String   @db.VarChar(127)
+  email     String   @unique @db.VarChar(127)
+  password  String   @db.VarChar(127)
+  createdAt DateTime @default(now()) @db.Timestamp()
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp()
+  clients   Client[]
+
+  @@map("users")
+}
+
+model Client {
+  id          String        @id @unique @default(uuid())
+  name        String        @unique @db.VarChar(127)
+  email       String        @db.VarChar(127)
+  phone       String        @db.VarChar(127)
+  createdAt   DateTime      @default(now()) @db.Timestamp()
+  updatedAt   DateTime      @default(now()) @updatedAt @db.Timestamp()
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  clientInfos ClientInfos[]
+  contacts    Contacts[]
+
+  @@map("clients")
+}
+
+model ClientInfos {
+  id           String   @id @unique @default(uuid())
+  email        String?  @db.VarChar(127)
+  phone        String?  @db.VarChar(127)
+  createdAt    DateTime @default(now()) @db.Timestamp()
+  updatedAt    DateTime @default(now()) @updatedAt @db.Timestamp()
+  client       Client   @relation(fields: [clientInfoId], references: [id], onDelete: Cascade)
+  clientInfoId String
+
+  @@map("client_infos")
+}
+
+model Contacts {
+  id           String          @id @unique @default(uuid())
+  name         String          @unique @db.VarChar(127)
+  email        String          @db.VarChar(127)
+  phone        String          @db.VarChar(127)
+  createdAt    DateTime        @default(now()) @db.Timestamp()
+  updatedAt    DateTime        @default(now()) @updatedAt @db.Timestamp()
+  client       Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId     String
+  contactInfos ContactsInfos[]
+
+  @@map("contacts")
+}
+
+model ContactsInfos {
+  id        String   @id @unique @default(uuid())
+  email     String?  @db.VarChar(127)
+  phone     String?  @db.VarChar(127)
+  createdAt DateTime @default(now()) @db.Timestamp()
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp()
+  contact   Contacts @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  contactId String
+
+  @@map("contact_infos")
+}
