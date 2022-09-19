@@ -32,7 +32,7 @@ export const createUserService = async (
   return response;
 };
 
-export const listUsersService = async () => {
+export const listUsersService = async (): Promise<IUserList[]> => {
   const users = await prisma.user.findMany();
 
   const response: IUserList[] = [];
@@ -42,6 +42,23 @@ export const listUsersService = async () => {
 
     response.push(userResponse);
   });
+
+  return response;
+};
+
+export const listUserByIdService = async (
+  user_id: string
+): Promise<IUserResponse> => {
+  const user = await prisma.user.findUnique({
+    where: { id: user_id },
+    include: { clients: true },
+  });
+
+  if (!user) {
+    throw new AppError("User dont exists");
+  }
+
+  const { password, ...response } = user;
 
   return response;
 };
