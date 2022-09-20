@@ -1,6 +1,12 @@
 import { prisma } from "../app";
 import { AppError } from "../errors/AppError";
-import { IUserCreate, IUserList, IUserResponse } from "../interfaces/user";
+import {
+  IUserCreate,
+  IUserData,
+  IUserList,
+  IUserResponse,
+  IUserUpdate,
+} from "../interfaces/user";
 import { hash } from "bcryptjs";
 
 export const createUserService = async (
@@ -61,4 +67,70 @@ export const listUserByIdService = async (
   const { password, ...response } = user;
 
   return response;
+};
+
+export const updateUserService = async (
+  user_id: string,
+  user: IUserData,
+  userUpdate: IUserUpdate
+) => {
+  if (user_id != user.id) {
+    throw new AppError("You don't have permission", 403);
+  }
+
+  if (userUpdate.email) {
+    const verifyUserEmail = await prisma.user.findUnique({
+      where: { email: userUpdate.email },
+    });
+    if (verifyUserEmail) {
+      throw new AppError("Email already exists");
+    }
+  }
+
+  const findUser = await prisma.user.findUnique({
+    where: {
+      id: user_id,
+    },
+  });
+
+  const updateUser = await prisma.user.update({
+    where: {
+      id: user_id,
+    },
+    data: {
+      name: userUpdate.name ? userUpdate.name : findUser?.name,
+      email: userUpdate.email ? userUpdate.email : findUser?.email,
+      password: userUpdate.password
+        ? await hash(userUpdate.password, 10)
+        : findUser?.password,
+    },
+  });
+  console.log(updateUser);
+  const { password, ...response } = updateUser;
+
+  return response;
+};
+
+export const deleteUserService = async (user_id: string, user: IUserData) => {
+  const findUser = await prisma.user.findUnique({
+    where: {
+      id: user_id,
+    },
+  });
+
+  if (!findUser) {
+    throw new AppError("User not found", 400);
+  }
+
+  if (user_id != user.id) {
+    throw new AppError("You don't have permission", 403);
+  }
+
+  const deleteUser = await prisma.user.delete({
+    where: {
+      id: user_id,
+    },
+  });
+
+  return;
 };

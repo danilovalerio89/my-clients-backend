@@ -5,7 +5,7 @@ import { AppError } from "../errors/AppError";
 import { IUserLogin } from "../interfaces/user";
 
 export const userLoginService = async (data: IUserLogin) => {
-  const user = await prisma.user.findUniqueOrThrow({
+  const user = await prisma.user.findUnique({
     where: { email: data.email },
   });
 
@@ -13,11 +13,22 @@ export const userLoginService = async (data: IUserLogin) => {
     throw new AppError("Wrong email/password");
   }
 
-  const passwordMatch = compare(data.password, user.password);
+  const passwordMatch = await compare(data.password, user.password);
 
   if (!passwordMatch) {
     throw new AppError("Wrong email/password");
   }
 
-  //   const token = jwt.sign({})
+  const token = jwt.sign(
+    {
+      id: user!.id,
+      email: user!.email,
+    },
+    process.env.SECRET_KEY as string,
+    {
+      expiresIn: "24h",
+    }
+  );
+
+  return token;
 };
