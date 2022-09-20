@@ -2,8 +2,10 @@ import { Router } from "express";
 
 import {
   createContactController,
+  deleteClientContactController,
   listContactsClientController,
   listOneContactClientController,
+  updateClientContactController,
 } from "../controllers/contacts.controllers";
 import { schemaValidation } from "../middlewares/schemaValidation.middleware";
 
@@ -20,9 +22,21 @@ export const contactsRoutes = () => {
   );
 
   routes.get(
-    "/contacts/:contact_id",
+    "/:client_id/contacts/:contact_id",
     verifyAuthToken,
     listOneContactClientController
+  );
+
+  routes.patch(
+    "/:client_id/contacts/:contact_id",
+    verifyAuthToken,
+    updateClientContactController
+  );
+
+  routes.delete(
+    "/:client_id/contacts/:contact_id",
+    verifyAuthToken,
+    deleteClientContactController
   );
 
   return routes;

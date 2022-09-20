@@ -13,3 +13,9 @@ export interface IContactResponse {
   updatedAt: Date;
   clientId: string;
 }
+
+export interface IContactUpdate {
+  name?: string;
+  email?: string;
+  phone?: string;
+}
