@@ -35,27 +35,14 @@ model Client {
 }
 
 model Contacts {
-  id           String          @id @unique @default(uuid())
-  name         String          @db.VarChar(127)
-  email        String          @db.VarChar(127)
-  phone        String          @db.VarChar(127)
-  createdAt    DateTime        @default(now()) @db.Timestamp()
-  updatedAt    DateTime        @default(now()) @updatedAt @db.Timestamp()
-  client       Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  clientId     String
-  contactInfos ContactsInfos[]
-
-  @@map("contacts")
-}
-
-model ContactsInfos {
   id        String   @id @unique @default(uuid())
-  email     String?  @db.VarChar(127)
-  phone     String?  @db.VarChar(127)
+  name      String   @db.VarChar(127)
+  email     String   @db.VarChar(127)
+  phone     String   @db.VarChar(127)
   createdAt DateTime @default(now()) @db.Timestamp()
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamp()
-  contact   Contacts @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  contactId String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId  String
 
-  @@map("contact_infos")
+  @@map("contacts")
 }

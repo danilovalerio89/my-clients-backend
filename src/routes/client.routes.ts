@@ -10,6 +10,7 @@ import {
 import { schemaValidation } from "../middlewares/schemaValidation.middleware";
 
 import { verifyAuthToken } from "../middlewares/verifyAuthToken.middleware";
+import { verifyClientOwner } from "../middlewares/verifyOwner.middleware";
 import { clientSchema } from "../schemas/client.schema";
 
 const routes = Router();
@@ -22,9 +23,24 @@ export const clientRoutes = () => {
     createClientController
   );
   routes.get("/", verifyAuthToken, listClientController);
-  routes.get("/:client_id", verifyAuthToken, listOneClientController);
-  routes.patch("/:client_id", verifyAuthToken, updateClientController);
-  routes.delete("/:client_id", verifyAuthToken, deleteClientController);
+  routes.get(
+    "/:client_id",
+    verifyAuthToken,
+    verifyClientOwner,
+    listOneClientController
+  );
+  routes.patch(
+    "/:client_id",
+    verifyAuthToken,
+    verifyClientOwner,
+    updateClientController
+  );
+  routes.delete(
+    "/:client_id",
+    verifyAuthToken,
+    verifyClientOwner,
+    deleteClientController
+  );
 
   return routes;
 };
