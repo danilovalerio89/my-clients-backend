@@ -42,11 +42,7 @@ export const updateClientController = async (
 ) => {
   const { client_id } = request.params;
 
-  const client = await updateClientService(
-    client_id,
-    request.body,
-    request.user
-  );
+  const client = await updateClientService(client_id, request.body);
 
   return response.status(200).json(client);
 };

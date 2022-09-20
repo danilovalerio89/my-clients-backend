@@ -1,6 +1,7 @@
 import { prisma } from "../app";
 import { AppError } from "../errors/AppError";
 import {
+  IClientContactsResponse,
   IClientCreate,
   IClientResponse,
   IClientUpdate,
@@ -29,7 +30,9 @@ export const createClientService = async (
   return client;
 };
 
-export const listClientService = async (user: IUserData) => {
+export const listClientService = async (
+  user: IUserData
+): Promise<IClientContactsResponse[]> => {
   const clients = await prisma.client.findMany({
     where: {
       userId: user.id,
@@ -42,8 +45,10 @@ export const listClientService = async (user: IUserData) => {
   return clients;
 };
 
-export const listOneClientService = async (client_id: string) => {
-  const clients = await prisma.client.findUnique({
+export const listOneClientService = async (
+  client_id: string
+): Promise<IClientContactsResponse> => {
+  const client = await prisma.client.findUnique({
     where: {
       id: client_id,
     },
@@ -51,20 +56,26 @@ export const listOneClientService = async (client_id: string) => {
       contacts: true,
     },
   });
+  if (!client) {
+    throw new AppError("Client not exists");
+  }
 
-  return clients;
+  return client;
 };
 
 export const updateClientService = async (
   client_id: string,
-  data: IClientUpdate,
-  user: IUserData
-) => {
+  data: IClientUpdate
+): Promise<IClientResponse> => {
   const client = await prisma.client.findUnique({
     where: {
       id: client_id,
     },
   });
+
+  if (!client) {
+    throw new AppError("Client not exists");
+  }
 
   const clientUpdated = await prisma.client.update({
     where: {
@@ -80,7 +91,17 @@ export const updateClientService = async (
   return clientUpdated;
 };
 
-export const deleteClientService = async (client_id: string) => {
+export const deleteClientService = async (client_id: string): Promise<void> => {
+  const client = await prisma.client.findUnique({
+    where: {
+      id: client_id,
+    },
+  });
+
+  if (!client) {
+    throw new AppError("Client not exists");
+  }
+
   const userDeleted = await prisma.client.delete({
     where: {
       id: client_id,
