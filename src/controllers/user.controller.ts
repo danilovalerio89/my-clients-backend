@@ -13,7 +13,7 @@ export const createUserController = async (
   // next: NextFunction
 ) => {
   const data = request.body;
-  console.log(data);
+
   const user = await createUserService(data);
   return response.status(201).json(user);
 };

@@ -73,7 +73,7 @@ export const updateUserService = async (
   user_id: string,
   user: IUserData,
   userUpdate: IUserUpdate
-) => {
+): Promise<IUserList> => {
   if (user_id != user.id) {
     throw new AppError("You don't have permission", 403);
   }
@@ -105,13 +105,16 @@ export const updateUserService = async (
         : findUser?.password,
     },
   });
-  console.log(updateUser);
+
   const { password, ...response } = updateUser;
 
   return response;
 };
 
-export const deleteUserService = async (user_id: string, user: IUserData) => {
+export const deleteUserService = async (
+  user_id: string,
+  user: IUserData
+): Promise<void> => {
   const findUser = await prisma.user.findUnique({
     where: {
       id: user_id,
