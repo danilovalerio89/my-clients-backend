@@ -17,6 +17,7 @@ export const createClientService = async (
       name: data.name,
       email: data.email,
       phone: data.phone,
+
       user: {
         connect: {
           id: user.id,
