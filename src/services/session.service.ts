@@ -1,5 +1,5 @@
 import { compare } from "bcryptjs";
-import { prisma } from "../app";
+import { prisma } from "../../prisma";
 import jwt from "jsonwebtoken";
 import { AppError } from "../errors/AppError";
 import { IUserLogin } from "../interfaces/user";

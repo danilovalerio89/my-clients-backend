@@ -1,4 +1,4 @@
-import { prisma } from "../app";
+import { prisma } from "../../prisma";
 import { AppError } from "../errors/AppError";
 import { IContactResponse, IContactUpdate } from "../interfaces/contacts";
 import { IContactClient } from "../interfaces/contacts";

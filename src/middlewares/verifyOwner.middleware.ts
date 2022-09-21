@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { prisma } from "../app";
+import { prisma } from "../../prisma";
 import { AppError } from "../errors/AppError";
 
 export const verifyClientOwner = async (
