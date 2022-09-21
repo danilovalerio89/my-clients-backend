@@ -99,11 +99,7 @@ export const updateContactClientService = async (
     where: {
       id: contact_id,
     },
-    data: {
-      name: data.name ? data.name : contact.name,
-      email: data.email ? data.email : contact.email,
-      phone: data.phone ? data.phone : contact.phone,
-    },
+    data: data,
   });
 
   return updatedContact;

@@ -81,11 +81,7 @@ export const updateClientService = async (
     where: {
       id: client_id,
     },
-    data: {
-      name: data.name ? data.name : client?.name,
-      email: data.email ? data.email : client?.email,
-      phone: data.phone ? data.phone : client?.phone,
-    },
+    data: data,
   });
 
   return clientUpdated;
