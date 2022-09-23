@@ -2,6 +2,8 @@
 
 #API Criada com Prisma e TypeScript.
 
+#Usar o comando "yarn"
+
 #Para configurar a API deve ser criado um arquivo .env
 
 #Configurando arquivo .env
