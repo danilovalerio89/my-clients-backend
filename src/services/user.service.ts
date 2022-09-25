@@ -1,4 +1,3 @@
-import { prisma } from "../../prisma";
 import { AppError } from "../errors/AppError";
 import {
   IUserCreate,
@@ -8,12 +7,16 @@ import {
   IUserUpdate,
 } from "../interfaces/user";
 import { hash } from "bcryptjs";
+import { AppDataSource } from "../data-source";
+import { User } from "../entities/user.entity";
 
 export const createUserService = async (
   data: IUserCreate
 ): Promise<IUserResponse> => {
-  const verifyUserEmail = await prisma.user.findUnique({
-    where: { email: data.email },
+  const userRepository = AppDataSource.getRepository(User);
+
+  const verifyUserEmail = await userRepository.findOneBy({
+    email: data.email,
   });
 
   if (verifyUserEmail) {
@@ -21,119 +24,94 @@ export const createUserService = async (
   }
 
   const hashedPassword = await hash(data.password, 10);
-
-  const user = await prisma.user.create({
-    data: {
-      name: data.name,
-      email: data.email,
-      password: hashedPassword,
-    },
-    include: {
-      clients: true,
-    },
+  const user = userRepository.create({
+    name: data.name,
+    email: data.email,
+    password: hashedPassword,
   });
 
-  const { password, ...response } = user;
+  await userRepository.save(user);
 
-  return response;
+  return user;
 };
 
 export const listUsersService = async (): Promise<IUserList[]> => {
-  const users = await prisma.user.findMany();
+  const usersRepository = AppDataSource.getRepository(User);
 
-  const response: IUserList[] = [];
+  const users = await usersRepository.find();
 
-  users.forEach((user) => {
-    const { password, ...userResponse } = user;
-
-    response.push(userResponse);
-  });
-
-  return response;
+  return users;
 };
 
-export const listUserByIdService = async (
-  user_id: string
-): Promise<IUserResponse> => {
-  const user = await prisma.user.findUnique({
-    where: { id: user_id },
-    include: { clients: true },
+export const listProfileService = async (user: IUserData) => {
+  const userRepository = AppDataSource.getRepository(User);
+  const findUser = await userRepository.find({
+    relations: {
+      contacts: true,
+    },
+    where: {
+      id: user.id,
+    },
   });
 
-  if (!user) {
-    throw new AppError("User dont exists");
-  }
-
-  const { password, ...response } = user;
-
-  return response;
+  return findUser;
 };
 
 export const updateUserService = async (
   user_id: string,
   user: IUserData,
   userUpdate: IUserUpdate
-): Promise<IUserList> => {
+) => {
   if (user_id != user.id) {
     throw new AppError("You don't have permission", 403);
   }
 
+  const userRepository = AppDataSource.getRepository(User);
+
+  const findUser = await userRepository.findOneBy({ id: user.id });
+
   if (userUpdate.email) {
-    const verifyUserEmail = await prisma.user.findUnique({
-      where: { email: userUpdate.email },
+    const verifyEmail = await userRepository.findOneBy({
+      email: userUpdate.email,
     });
-    if (verifyUserEmail) {
-      throw new AppError("Email already exists");
+    if (verifyEmail) {
+      if (findUser?.id !== verifyEmail?.id) {
+        throw new AppError("Email already exists.");
+      }
     }
   }
 
-  const findUser = await prisma.user.findUnique({
-    where: {
-      id: user_id,
-    },
-  });
-
-  const updateUser = await prisma.user.update({
-    where: {
-      id: user_id,
-    },
-    data: {
-      name: userUpdate.name ? userUpdate.name : findUser?.name,
-      email: userUpdate.email ? userUpdate.email : findUser?.email,
+  if (findUser?.id) {
+    const userUpdated = await userRepository.update(findUser?.id, {
+      name: userUpdate.name ? userUpdate.name : findUser.name,
+      email: userUpdate.email ? userUpdate.email : findUser.email,
       password: userUpdate.password
         ? await hash(userUpdate.password, 10)
-        : findUser?.password,
-    },
-  });
+        : findUser.password,
+    });
+  }
+  const userReturn = await userRepository.findOneBy({ id: user.id });
 
-  const { password, ...response } = updateUser;
-
-  return response;
+  return userReturn;
 };
 
 export const deleteUserService = async (
   user_id: string,
   user: IUserData
 ): Promise<void> => {
-  const findUser = await prisma.user.findUnique({
-    where: {
-      id: user_id,
-    },
-  });
+  if (user_id != user.id) {
+    throw new AppError("You don't have permission", 403);
+  }
+
+  const userRepository = AppDataSource.getRepository(User);
+
+  const findUser = await userRepository.findOneBy({ id: user.id });
 
   if (!findUser) {
     throw new AppError("User not found", 400);
   }
 
-  if (user_id != user.id) {
-    throw new AppError("You don't have permission", 403);
-  }
-
-  const deleteUser = await prisma.user.delete({
-    where: {
-      id: user_id,
-    },
-  });
+  await userRepository.delete({ id: user_id });
 
   return;
 };

@@ -2,7 +2,7 @@ import { Router } from "express";
 import {
   createUserController,
   deleteUserController,
-  listUserByIdController,
+  listProfileController,
   listUsersController,
   updateUserController,
 } from "../controllers/user.controller";
@@ -15,7 +15,7 @@ const routes = Router();
 export const userRoutes = () => {
   routes.post("/", schemaValidation(userSchema), createUserController);
   routes.get("/", listUsersController);
-  routes.get("/:user_id", listUserByIdController);
+  routes.get("/profile", verifyAuthToken, listProfileController);
   routes.patch("/:user_id", verifyAuthToken, updateUserController);
   routes.delete("/:user_id", verifyAuthToken, deleteUserController);
 

@@ -1,13 +1,14 @@
 import { compare } from "bcryptjs";
-import { prisma } from "../../prisma";
 import jwt from "jsonwebtoken";
+import { AppDataSource } from "../data-source";
+import { User } from "../entities/user.entity";
 import { AppError } from "../errors/AppError";
 import { IUserLogin } from "../interfaces/user";
 
 export const userLoginService = async (data: IUserLogin) => {
-  const user = await prisma.user.findUnique({
-    where: { email: data.email },
-  });
+  const userRepository = AppDataSource.getRepository(User);
+
+  const user = await userRepository.findOneBy({ email: data.email });
 
   if (!user) {
     throw new AppError("Wrong email/password");

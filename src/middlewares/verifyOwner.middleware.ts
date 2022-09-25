@@ -1,26 +1,29 @@
 import { Request, Response, NextFunction } from "express";
-import { prisma } from "../../prisma";
+import { AppDataSource } from "../data-source";
+import { Contacts } from "../entities/contacts.entity";
 import { AppError } from "../errors/AppError";
 
-export const verifyClientOwner = async (
+export const verifyContactOwner = async (
   request: Request,
   response: Response,
   next: NextFunction
 ) => {
-  const { client_id } = request.params;
+  const { contact_id } = request.params;
+  const contactRepository = AppDataSource.getRepository(Contacts);
 
-  const client = await prisma.client.findUnique({
-    where: {
-      id: client_id,
+  const client = await contactRepository.find({
+    relations: {
+      user: true,
     },
+    where: { id: contact_id },
   });
 
-  if (!client) {
+  if (client.length == 0) {
     throw new AppError("Client not exists.");
   }
 
-  if (client.userId != request.user.id) {
-    throw new AppError("You don't have permission.");
+  if (client[0].user.id !== request.user.id) {
+    throw new AppError("You dont have permission", 403);
   }
 
   next();
