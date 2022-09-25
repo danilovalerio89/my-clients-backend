@@ -1,5 +1,6 @@
-export interface IContactClient {
-  name: string;
+export interface IContactCreate {
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
 }
@@ -15,7 +16,8 @@ export interface IContactResponse {
 }
 
 export interface IContactUpdate {
-  name?: string;
+  firstName?: string;
+  lastName?: string;
   email?: string;
   phone?: string;
 }

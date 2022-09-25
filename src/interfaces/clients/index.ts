@@ -1,12 +1,10 @@
-import { IContactResponse } from "../contacts";
-
-export interface IClientCreate {
+export interface IContactCreate {
   name: string;
   email: string;
   phone: string;
 }
 
-export interface IClientResponse {
+export interface IContactResponse {
   id: string;
   name: string;
   email: string;
@@ -16,7 +14,7 @@ export interface IClientResponse {
   userId: string;
 }
 
-export interface IClientUpdate {
+export interface IContactUpdate {
   name?: string;
   email?: string;
   phone?: string;
